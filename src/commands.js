@@ -44,7 +44,7 @@ export async function rm (path) {
     message: [ 'rm'.red, path ].join(' '),
     fn: () => new Promise((res, rej) => {
       function oldSchoolSync (e) {
-        if (e && e.message === 'No such file') rej(e);
+        if (e && e.message === 'No such file') return rej(e);
         let ssh = cp.spawn('ssh', ['-tt', `${opts.host}`, 'bash', '-ic', command], { stdio: ['ignore', 'ignore', 'ignore'] });
         ssh.on('close', code => { res(code) });
       }
