@@ -27,7 +27,7 @@
     "find-up": "1.1.0",
     "own-version": "0.0.2",
     "promise-ftp-common": "1.1.5",
-    "promise-sftp": "nuxdie/promise-sftp#dev",
+    "promise-sftp": "0.9.6",
     "rsync": "0.4.0"
   },
   "devDependencies": {
