@@ -1,8 +1,9 @@
 import colors from 'colors';
 
 export default {
-  info: 'i'.blue,
-  error: 'X'.red,
-  warning: '!'.yellow,
-  success: 'OK'.green
+  info: 'i'.blue.bold,
+  error: 'X'.red.bold,
+  debug: '¡'.bgRed.bold,
+  warning: '!'.yellow.bold,
+  success: '√'.green.bold
 }

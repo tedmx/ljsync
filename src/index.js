@@ -13,6 +13,6 @@ import log from './logger';
   .on('change', sync)
   .on('unlink', rm)
   .on('unlinkDir', rmDir)
-  .on('ready', log)
-  .on('error', log);
+  .on('ready', log.debug.bind(log, 'chokidar ready event fired'))
+  .on('error', ::log.error);
 })()

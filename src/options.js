@@ -13,9 +13,11 @@ const rcFile = '.ljsyncrc';
 class Options {
   constructor() {
     this.mode = 'rsync';
+    this.debug = false;
     this.remote = '/home/tmp';
     this.host = 'hostname';
     this.ftpHost = 'example.com';
+    this.maxErrors = 30; // debug autoswitch
     this.user = 'username';
     this.password = 'passw0rd';
     this.git = {branch: 'master'};
@@ -23,6 +25,7 @@ class Options {
   }
 
   async init () {
+    log.debug('reading file rcFile');
     let opts = await this.readCfg(rcFile);
 
     for (let key in opts)
@@ -30,6 +33,7 @@ class Options {
     for (let key in argv)
       this[key] = argv[key];
 
+    log.debug('getting package version');
     this.version = await version();
 
     this.banner();
@@ -39,6 +43,7 @@ class Options {
   }
 
   async initFtp () {
+    log.debug('init ftp started');
     try {
       let banner = await ftp.connect({
         host: this.ftpHost,
@@ -48,10 +53,10 @@ class Options {
         keepalive: 1e4,
         preserveCwd: true
       });
-      log(symbols.info, 'FTP connected', banner);
+      log.info('FTP connected', banner);
     } catch (e) {
-      log(symbols.error, 'Can\'t connect to FTP', e)
-      log(symbols.warning, 'Using slow Rsync mode');
+      log.error('Can\'t connect to FTP', e)
+      log.warning('Using slow Rsync mode');
       this.mode = 'rsync';
     }
   }
@@ -66,16 +71,18 @@ class Options {
       let content = await read(file)
       json = JSON.parse(content);
     } catch (e) {
-      log(e.stack);
+      log.error(e.stack);
     }
     return json || {};
   }
 
   async touch () { // force sync diff files
+    log.debug('touching git files');
     let diff = await exec('git diff ' + this.git.branch + ' --name-status | colrm 1 3 | xargs');
     let status = await exec('git status -s | colrm 1 3 | xargs');
     let space = /\s/;
     let files = diff.split(space).filter(Boolean).concat(status.split(space).filter(Boolean));
+    log.debug('files touched', files);
     files.forEach(sync);
   }
 
