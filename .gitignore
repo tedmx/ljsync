@@ -79,3 +79,4 @@ node_modules
 !gulpfile.js
 !src/*.js
 .ljsyncrc
+build

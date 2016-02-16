@@ -2,10 +2,10 @@
   "name": "ljsync",
   "version": "4.0.1",
   "description": "sync local changes to vm",
-  "main": "./index.js",
+  "main": "build/index.js",
   "repository": "nuxdie/ljsync",
   "bin": {
-    "ljsync": "./index.js"
+    "ljsync": "build/index.js"
   },
   "scripts": {
     "test": "exit 0",
@@ -19,17 +19,16 @@
   "author": "nuxdie",
   "license": "ISC",
   "dependencies": {
+    "argh": "0.1.4",
     "babel-polyfill": "6.3.14",
     "babel-runtime": "6.3.19",
     "chokidar": "1.0.5",
     "colors": "1.1.2",
     "find-up": "1.1.0",
-    "inquirer": "0.11.0",
-    "log-symbols": "1.0.2",
+    "own-version": "0.0.2",
     "promise-ftp-common": "1.1.5",
     "promise-sftp": "nuxdie/promise-sftp#dev",
-    "rsync": "0.4.0",
-    "yargs": "3.29.0"
+    "rsync": "0.4.0"
   },
   "devDependencies": {
     "babel": "6.1.18",

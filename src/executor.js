@@ -1,6 +1,6 @@
 import log from './logger';
 import {stat} from './fs';
-import symbols from 'log-symbols';
+import symbols from './symbols';
 
 export class Executor {
 

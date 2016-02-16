@@ -1,10 +1,11 @@
 import findUp from 'find-up';
-import symbols from 'log-symbols';
+import {inspect} from 'util';
+import symbols from './symbols';
 import ftp from './ftp';
 import { sync, rm } from './commands';
-import { argv } from 'yargs';
+import { argv } from 'argh';
 import log from './logger';
-import {read} from './fs';
+import {version, read} from './fs';
 import {exec, spawn} from './cp';
 
 const rcFile = '.ljsyncrc';
@@ -28,6 +29,8 @@ class Options {
       this[key] = opts[key];
     for (let key in argv)
       this[key] = argv[key];
+
+    this.version = await version();
 
     this.banner();
     if (this.mode === 'ftp')
@@ -78,13 +81,8 @@ class Options {
 
 
   banner () {
-    log(`watch path`,` ${process.cwd()}/**`);
-    log(`host`,` ${this.host}`);
-    log(`remote path`,` ${this.remote}`);
-    log(`git-branch`,` ${this.git.branch}`);
-    log(`chkd-interval`,` ${this.chokidar.interval}ms`);
-    log(`chkd-ignoreInitial`,` ${this.chokidar.ignoreInitial}`);
-    log(`chkd-ignored`,` ${this.chokidar.ignored.join()}`);
+    Object.keys(this)
+    .forEach(k => log(`${k}: ${inspect(this[k], {colors: true, depth: Infinity})}`));
   }
 }
 

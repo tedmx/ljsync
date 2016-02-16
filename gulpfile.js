@@ -20,5 +20,5 @@ function build () {
   gulp.src('src/*.js')
   .pipe(babel(config))
   .pipe(chmod(755))
-  .pipe(gulp.dest('.'));
+  .pipe(gulp.dest('./build'));
 }
