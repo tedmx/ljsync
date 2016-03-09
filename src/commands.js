@@ -103,7 +103,7 @@ export async function addDir (path) {
 }
 
 export async function sync (path) {
-  let match = path.match(/htdocs(.*\.js)$/);
+  let match = path.match(/htdocs(.*\.[cjs]+)$/);
   if (match && match.length && match[1]) {
     let min = join('htdocs/min', match[1]);
     log.debug('wait for min rm first', match[1]);
