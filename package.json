@@ -25,6 +25,7 @@
     "chokidar": "1.0.5",
     "colors": "1.1.2",
     "find-up": "1.1.0",
+    "osx-notifier": "0.2.2",
     "own-version": "0.0.2",
     "promise-ftp-common": "1.1.5",
     "promise-sftp": "0.9.6",

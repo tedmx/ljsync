@@ -14,6 +14,7 @@ class Options {
   constructor() {
     this.mode = 'rsync';
     this.debug = false;
+    this.notify = false;
     this.remote = '/home/tmp';
     this.host = 'hostname';
     this.ftpHost = 'example.com';
