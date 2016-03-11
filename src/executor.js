@@ -39,8 +39,7 @@ export class Executor {
       let time = Date.now();
       log.debug('trying to perform', task.name);
 
-      if (!options['dry-run'])
-        await task.fn(); // if someting goes wrong the code breaks here
+      await task.fn(); // if someting goes wrong the code breaks here
       log.success(`${Date.now()-time}ms`.bgBlack.white, task.message);
 
       this.totalSuccess++;

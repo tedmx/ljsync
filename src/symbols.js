@@ -5,5 +5,6 @@ export default {
   error: 'X'.red.bold,
   debug: '¡'.bgRed.bold,
   warning: '!'.yellow.bold,
+  notify: '\x1F', // special symbol to use notifier
   success: '√'.green.bold
 }

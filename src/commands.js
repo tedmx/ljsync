@@ -22,18 +22,23 @@ export async function rmDir (path) {
     message: [ 'rmDir'.red, path ].join(' '),
     fn: () => new Promise((res, rej) => {
       function oldSchoolSync () {
+        let ssh;
         log.debug('attempting oldSchoolSync rmDir', command);
-        let ssh = cp.spawn('ssh', ['-tt', `${opts.host}`, 'bash', '-ic', command], { stdio: ['ignore', 'ignore', 'pipe'] });
+        if (!opts['dry-run']) {
+          ssh = cp.spawn('ssh', ['-tt', `${opts.host}`, 'bash', '-ic', command], { stdio: ['ignore', 'ignore', 'pipe'] });
+          ssh.stderr.on('data', rej);
+          ssh.on('close', code => { res(code) });
+        } else { res(); }
         log.debug('ssh spawned', opts.host, command);
-        ssh.stderr.on('data', rej);
-        ssh.on('close', code => { res(code) });
       }
       if (opts.mode === 'ftp' ) {
         log.debug('trying to rmDir', path, 'in ftp');
-        ftp.rmdir(node_path.join(opts.remote, path)).then(res).catch(e => {
-          log.debug('ftp rmDir unsuccessfull, trying oldSchoolSync', command, e);
-          oldSchoolSync();
-        });
+        if (!opts['dry-run']) {
+          ftp.rmdir(node_path.join(opts.remote, path)).then(res).catch(e => {
+            log.debug('ftp rmDir unsuccessfull, trying oldSchoolSync', command, e);
+            oldSchoolSync();
+          });
+        } else { res(); }
       } else {
         oldSchoolSync();
       }
@@ -53,19 +58,23 @@ export async function rm (path) {
     fn: () => new Promise((res, rej) => {
       function oldSchoolSync (e) {
         log.debug('attempting oldSchoolSync', command);
-        let ssh = cp.spawn('ssh', ['-tt', `${opts.host}`, 'bash', '-ic', command], { stdio: ['ignore', 'ignore', 'ignore'] });
-        ssh.on('close', code => { res(code) });
+        if (!opts['dry-run']) {
+          let ssh = cp.spawn('ssh', ['-tt', `${opts.host}`, 'bash', '-ic', command], { stdio: ['ignore', 'ignore', 'ignore'] });
+          ssh.on('close', code => { res(code) });
+        } else { res(); }
       }
       if (opts.mode === 'ftp' ) {
         log.debug('trying to unlink', path, 'in ftp');
-        ftp.unlink(node_path.join(opts.remote, path)).then(res).catch(e => {
-          if (e.message === 'No such file') {
-            log.debug(e.message, 'while ftp', command, 'not going to oldSchoolSync');
-            return rej(e);
-          }
-          log.debug('ftp rm unsuccessfull, trying oldSchoolSync()', command, e);
-          oldSchoolSync();
-        });
+        if (!opts['dry-run']) {
+          ftp.unlink(node_path.join(opts.remote, path)).then(res).catch(e => {
+            if (e.message === 'No such file') {
+              log.debug(e.message, 'while ftp', command, 'not going to oldSchoolSync');
+              return rej(e);
+            }
+            log.debug('ftp rm unsuccessfull, trying oldSchoolSync()', command, e);
+            oldSchoolSync();
+          });
+        } else { res(); }
       } else {
         oldSchoolSync();
       }
@@ -87,14 +96,18 @@ export async function addDir (path) {
       let recursive = true;
       function oldSchoolSync () {
         log.debug('attempting addDir oldSchoolSync', path, command);
-        command.execute( (err, code, cmd) => err ? rej(err) : res(code))
+        if (!opts['dry-run']) {
+          command.execute( (err, code, cmd) => err ? rej(err) : res(code))
+        } else { res(); }
       }
       if (opts.mode === 'ftp') {
         log.debug('trying to mkdir in ftp', path);
-        ftp.mkdir(node_path.join(opts.remote, path), recursive).then(res).catch(e => {
-          log.debug('unsuccessfull mkdir in ftp, trying to oldSchoolSync()', e, path, command);
-          oldSchoolSync();
-        });
+        if (!opts['dry-run']) {
+          ftp.mkdir(node_path.join(opts.remote, path), recursive).then(res).catch(e => {
+            log.debug('unsuccessfull mkdir in ftp, trying to oldSchoolSync()', e, path, command);
+            oldSchoolSync();
+          });
+        } else { res(); }
       } else {
         oldSchoolSync();
       }
@@ -121,14 +134,18 @@ export async function sync (path) {
     fn: () => new Promise((res, rej) => {
       function oldSchoolSync () {
         log.debug('attempting oldSchoolSync', command, path);
-        command.execute( (err, code, cmd) => err ? rej(err) : res(code))
+        if (!opts['dry-run']) {
+          command.execute( (err, code, cmd) => err ? rej(err) : res(code))
+        } else { res(); }
       }
       if (opts.mode === 'ftp') {
         log.debug('trying to put in ftp', path);
-        ftp.put(path, node_path.join(opts.remote, path)).then(res).catch(e => {
-          log.debug('failed to sync in ftp, trying to oldSchoolSync()', e, path);
-          oldSchoolSync();
-        });
+        if (!opts['dry-run']) {
+          ftp.put(path, node_path.join(opts.remote, path)).then(res).catch(e => {
+            log.debug('failed to sync in ftp, trying to oldSchoolSync()', e, path);
+            oldSchoolSync();
+          });
+        } else { res(); }
       } else {
         oldSchoolSync();
       }

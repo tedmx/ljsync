@@ -13,7 +13,7 @@ export default function logger (...args) {
 logger.debug = function debug (...args) {
   if (options.debug) {
     this(symbols.debug, ...args);
-    if (options.notify)
+    if (args[0] === symbols.notify && options.notify)
       notify({
         type: 'info',
         title: symbols.debug.strip,
@@ -26,7 +26,7 @@ logger.debug = function debug (...args) {
 
 logger.info = function info (...args) {
   this(symbols.info, ...args);
-  if (options.notify)
+  if (args[0] === symbols.notify && options.notify)
     notify({
       type: 'info',
       title: symbols.info.strip,
@@ -38,7 +38,7 @@ logger.info = function info (...args) {
 
 logger.success = function success (...args) {
   this(symbols.success, ...args);
-  if (options.notify)
+  if (args[0] === symbols.notify && options.notify)
     notify({
       type: 'pass',
       title: symbols.success.strip,
@@ -50,7 +50,7 @@ logger.success = function success (...args) {
 
 logger.warning = function warning (...args) {
   this(symbols.warning, ...args);
-  if (options.notify)
+  if (args[0] === symbols.notify && options.notify)
     notify({
       type: 'info',
       title: symbols.warning.strip,
@@ -62,7 +62,7 @@ logger.warning = function warning (...args) {
 
 logger.error = function error (...args) {
   this(symbols.error, ...args);
-  if (options.notify)
+  if (args[0] === symbols.notify && options.notify)
     notify({
       type: 'fail',
       title: symbols.error.strip,
