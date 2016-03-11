@@ -62,7 +62,7 @@ export class Executor {
     if ((!exist && task.type === 'sync') || (e.message === 'No such file'))
       return log.warning('404 Not Found'.yellow, 'while', task.message);
 
-    log.error(task.name, e.stack);
+    log.error(symbols.notify, task.name, e.stack);
 
     if (!this.errors[task.name])
       this.errors[task.name] = 1;
