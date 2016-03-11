@@ -1,6 +1,6 @@
 {
   "name": "ljsync",
-  "version": "4.3.1",
+  "version": "4.3.2",
   "description": "sync local changes to vm",
   "main": "build/index.js",
   "repository": "nuxdie/ljsync",
