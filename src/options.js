@@ -15,6 +15,8 @@ class Options {
     this.mode = 'rsync';
     this.debug = false;
     this.notify = false;
+    this['no-git'] = false;
+    this['dry-run'] = false;
     this.remote = '/home/tmp';
     this.host = 'hostname';
     this.ftpHost = 'example.com';
@@ -40,7 +42,8 @@ class Options {
     this.banner();
     if (this.mode === 'ftp')
       await this.initFtp();
-    await this.touch();
+    if (!this['no-git'])
+      await this.touch();
   }
 
   async initFtp () {
