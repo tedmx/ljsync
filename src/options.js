@@ -7,22 +7,24 @@ import { argv } from 'argh';
 import log from './logger';
 import {version, read} from './fs';
 import {exec, spawn} from './cp';
+import {option} from './decorators';
 
 const rcFile = '.ljsyncrc';
 
+@option('help', false, 'show this help and exit immediately. ' + 'Default: false'.yellow)
+@option('maxErrors', 30, 'after this number of errors/no-errors debugging will auto turn on/off. ' + 'Default: 30'.yellow)
+@option('debug', false, 'show extensive debugging info. ' + 'Default: false'.yellow)
+@option('notify', false, 'display critical notifications in osx notification center.' + ' Default: false'.yellow)
+@option('no-git', false, 'do not sync files that has diff to git:branch.' + ' Default: false'.yellow)
+@option('dry-run', false, 'do not perform any network operations, just pretend to. ' + 'Default: false'.yellow)
+@option('ftpHost', 'example.com', 'remote ftp hostname to connect through sftp to. ' + 'Default: example.com'.yellow)
+@option('remote', '/home/tmp', 'remote folder to sync changes to.' + ' Default: /home/tmp'.yellow)
+@option('password', 'passw0rd', 'user\'s password from sftp account. ' + 'Default: passw0rd'.yellow)
+@option('user', 'username', 'sftp username. ' + 'Default: username')
+@option('host', 'hostname', 'remote machine to sync files to.' + ' Default: hostname'.yellow)
+@option('mode', 'rsync', 'use fast sftp over ssh or slow rsync for file operations.' + ' Default: rsync'.yellow)
 class Options {
   constructor() {
-    this.mode = 'rsync';
-    this.debug = false;
-    this.notify = false;
-    this['no-git'] = false;
-    this['dry-run'] = false;
-    this.remote = '/home/tmp';
-    this.host = 'hostname';
-    this.ftpHost = 'example.com';
-    this.maxErrors = 30; // debug autoswitch
-    this.user = 'username';
-    this.password = 'passw0rd';
     this.git = {branch: 'master'};
     this.chokidar = { interval: 3e2, ignoreInitial: !0, ignored: [ '*node_modules*', '*.git*' ] };
   }
@@ -39,11 +41,24 @@ class Options {
     log.debug('getting package version');
     this.version = await version();
 
+    this.showHelp();
+    if (this.help)
+      process.exit()
+
     this.banner();
     if (this.mode === 'ftp')
       await this.initFtp();
     if (!this['no-git'])
       await this.touch();
+  }
+
+  showHelp () {
+    console.log('LiveJournal sync tool'.bold, `v${this.version}\n`)
+    for (let key in this) {
+      let {value, text} = this[key];
+      if (text) console.log((`\t--${key}`).blue + ' = '.gray + (`${value}`).green + ' -- '.gray + (`${text}`));
+    }
+    console.log('\n\n')
   }
 
   async initFtp () {

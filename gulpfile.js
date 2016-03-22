@@ -11,6 +11,7 @@ var config = {
     "syntax-async-functions",
     "transform-runtime",
     "transform-regenerator",
+    "transform-decorators-legacy",
     "transform-async-to-generator"
   ],
   presets: ['es2015', 'stage-0']
