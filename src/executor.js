@@ -29,7 +29,7 @@ export class Executor {
     this.sort();
 
     if (!this.queue.length)
-      return setTimeout(::this.run, 42);
+      return setTimeout(::this.run, options.chokidar.interval);
 
     task = this.queue.shift();
     log.debug('getting task from executor queue', task.name);
