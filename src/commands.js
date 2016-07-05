@@ -83,7 +83,7 @@ export async function rm (path) {
 }
 
 export async function addDir (path) {
-  let config = { flags: 'RplvPh', source: path, destination: `${opts.host}:${opts.remote}` };
+  let config = { flags: 'RplvPh', source: path, destination: `${opts.user}@${opts.host}:${opts.remote}` };
   let command = rsync.build(config);
   log.debug('addDir command add to queue', path, command);
   ex.push({
@@ -122,7 +122,7 @@ export async function sync (path) {
     log.debug('wait for min rm first', match[1]);
     await rm(min);
   }
-  let config = { flags: 'RplvPh', source: path, destination: `${opts.host}:${opts.remote}` };
+  let config = { flags: 'RplvPh', source: path, destination: `${opts.user}@${opts.host}:${opts.remote}` };
   let command = rsync.build(config);
   log.debug('add sync task to queue', path);
   ex.push({
