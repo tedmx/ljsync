@@ -15,7 +15,7 @@ const rcFile = '.ljsyncrc';
 @option('maxErrors', 30, 'after this number of errors/no-errors debugging will auto turn on/off. ' + 'Default: 30'.yellow)
 @option('debug', false, 'show extensive debugging info. ' + 'Default: false'.yellow)
 @option('notify', false, 'display critical notifications in osx notification center.' + ' Default: false'.yellow)
-@option('no-git', false, 'do not sync files that has diff to git:branch.' + ' Default: false'.yellow)
+@option('syncGit', true, 'do not sync files that has diff to git:branch.' + ' Default: true'.yellow)
 @option('dry-run', false, 'do not perform any network operations, just pretend to. ' + 'Default: false'.yellow)
 @option('ftpHost', 'example.com', 'remote ftp hostname to connect through sftp to. ' + 'Default: example.com'.yellow)
 @option('remote', '/home/tmp', 'remote folder to sync changes to.' + ' Default: /home/tmp'.yellow)
@@ -48,7 +48,7 @@ class Options {
     this.banner();
     if (this.mode === 'ftp')
       await this.initFtp();
-    if (!this['no-git'])
+    if (this['syncGit'])
       await this.touch();
   }
 
