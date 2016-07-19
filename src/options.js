@@ -97,12 +97,27 @@ class Options {
 
   async touch () { // force sync diff files
     log.debug('touching git files');
-    let diff = await exec('git diff ' + this.git.branch + ' --name-status | colrm 1 3 | xargs');
-    let status = await exec('git status -s | colrm 1 3 | xargs');
     let space = /\s/;
-    let files = diff.split(space).filter(Boolean).concat(status.split(space).filter(Boolean));
-    log.debug('files touched', files);
-    files.forEach(sync);
+    let normalize = list => list
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(f => f.split(space))
+      .map(([status, name]) => ({status, name}))
+    ;
+    let diff = normalize(await exec('git diff ' + this.git.branch + ' --name-status'));
+    let status = normalize(await exec('git status -s'));
+    let files = diff.concat(status);
+    log.debug('files touched', files.map(({name}) => name));
+    files.forEach(({status, name}) => {
+      switch (status) {
+        case 'D':
+          rm(name);
+          break;
+        default:
+          sync(name);
+      }
+    });
   }
 
 
