@@ -80,7 +80,8 @@ export class Executor {
       return this.errors[task.name] = 0;
 
     log.debug('pushing task back to queue for retry', task.name);
-    this.push(task); // retry
+    
+    return e.next ? e.next() : this.push(task); // continue OR retry
   }
 
   sort () {
