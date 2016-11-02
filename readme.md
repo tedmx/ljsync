@@ -1,3 +1,6 @@
+#build
+Build task runs automatically on commit to master with version change in package.json
+
 #install
 ````
 npm i -g ljsync
