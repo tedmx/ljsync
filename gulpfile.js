@@ -20,6 +20,6 @@ var config = {
 function build () {
   gulp.src('src/*.js')
   .pipe(babel(config))
-  .pipe(chmod(755))
+  .pipe(chmod(0o755))
   .pipe(gulp.dest('./build'));
 }

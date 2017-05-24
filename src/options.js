@@ -1,64 +1,65 @@
-import findUp from 'find-up';
-import {inspect} from 'util';
+import { inspect } from 'util';
 import symbols from './symbols';
 import ftp from './ftp';
 import { sync, rm } from './commands';
 import { argv } from 'argh';
 import log from './logger';
-import {version, read} from './fs';
-import {exec, spawn} from './cp';
-import {option} from './decorators';
+import { version } from './fs';
+import readFileAsync from './read-file-async';
+import { exec, spawn } from './cp';
+import { options } from './decorators';
+import defaultConfig from './config';
 
 const rcFile = '.ljsyncrc';
+const gitignore = '.gitignore';
 
-@option('help', false, 'show this help and exit immediately. ' + 'Default: false'.yellow)
-@option('maxErrors', 30, 'after this number of errors/no-errors debugging will auto turn on/off. ' + 'Default: 30'.yellow)
-@option('debug', false, 'show extensive debugging info. ' + 'Default: false'.yellow)
-@option('notify', false, 'display critical notifications in osx notification center.' + ' Default: false'.yellow)
-@option('syncGit', true, 'do not sync files that has diff to git:branch.' + ' Default: true'.yellow)
-@option('dry-run', false, 'do not perform any network operations, just pretend to. ' + 'Default: false'.yellow)
-@option('ftpHost', 'example.com', 'remote ftp hostname to connect through sftp to. ' + 'Default: example.com'.yellow)
-@option('remote', '/home/tmp', 'remote folder to sync changes to.' + ' Default: /home/tmp'.yellow)
-@option('password', 'passw0rd', 'user\'s password from sftp account. ' + 'Default: passw0rd'.yellow)
-@option('user', 'username', 'sftp username. ' + 'Default: username')
-@option('host', 'hostname', 'remote machine to sync files to.' + ' Default: hostname'.yellow)
-@option('mode', 'rsync', 'use fast sftp over ssh or slow rsync for file operations.' + ' Default: rsync'.yellow)
+@options(defaultConfig)
 class Options {
   constructor() {
-    this.git = {branch: 'master'};
-    this.chokidar = { interval: 3e2, ignoreInitial: !0, ignored: [ '*node_modules*', '*.git*' ] };
+    this.chokidar = { interval: 3e2, ignoreInitial: !0 };
   }
 
   async init () {
     log.debug('reading file rcFile');
     let opts = await this.readCfg(rcFile);
 
-    for (let key in opts)
+    for (let key in opts) {
       this[key] = opts[key];
-    for (let key in argv)
+    }
+    for (let key in argv) {
       this[key] = argv[key];
+    }
 
     log.debug('getting package version');
     this.version = await version();
 
+    if (this.readGitignore) {
+      let ignored = await this.readIgnoreFile(gitignore);
+      this.chokidar.ignored = [...ignored, '*node_modules*', '*.git*'];
+    }
+
     this.showHelp();
-    if (this.help)
-      process.exit()
+    if (this.help) {
+      process.exit();
+    }
 
     this.banner();
-    if (this.mode === 'ftp')
+    if (this.mode === 'ftp') {
       await this.initFtp();
-    if (this['syncGit'])
+    }
+    if (this['syncGit']) {
+      this.git = { branch: 'master' };
       await this.touch();
+    }
   }
 
   showHelp () {
-    console.log('LiveJournal sync tool'.bold, `v${this.version}\n`)
+    console.log('LiveJournal sync tool'.bold, `v${this.version}\n`);
     for (let key in this) {
-      let {value, text} = this[key];
+      let { value, text } = this[key];
       if (text) console.log((`\t--${key}`).blue + ' = '.gray + (`${value}`).green + ' -- '.gray + (`${text}`));
     }
-    console.log('\n\n')
+    console.log('\n\n');
   }
 
   async initFtp () {
@@ -66,6 +67,7 @@ class Options {
     try {
       let banner = await ftp.connect({
         host: this.ftpHost,
+        port: this.port,
         user: this.user,
         password: this.password,
         autoReconnect: true,
@@ -74,25 +76,24 @@ class Options {
       });
       log.info('FTP connected', banner);
     } catch (e) {
-      log.error('Can\'t connect to FTP', e)
+      log.error('Can\'t connect to FTP', e);
       log.warning('Using slow Rsync mode');
       this.mode = 'rsync';
     }
   }
 
   async readCfg (path) {
-    var json;
-    try {
-      let file = await findUp(path);
-      if (!file) {
-        return {};
-      }
-      let content = await read(file)
-      json = JSON.parse(content);
-    } catch (e) {
-      log.error(e.stack);
-    }
-    return json || {};
+    let content = await readFileAsync(path);
+    if (content) return JSON.parse(content);
+    return {};
+  }
+
+  async readIgnoreFile (path) {
+    let buffer = await readFileAsync(path);
+    let ignored = buffer.toString('utf8')
+      .split(/\r?\n/)
+      .filter(x => !x.includes('#') && x !== '');
+    return ignored;
   }
 
   async touch () { // force sync diff files
@@ -103,13 +104,13 @@ class Options {
       .map(s => s.trim())
       .filter(Boolean)
       .map(f => f.split(space))
-      .map(([status, name]) => ({status, name}))
+      .map(([status, name]) => ({ status, name }))
     ;
     let diff = normalize(await exec('git diff ' + this.git.branch + ' --name-status'));
     let status = normalize(await exec('git status -s'));
     let files = diff.concat(status);
-    log.debug('files touched', files.map(({name}) => name));
-    files.forEach(({status, name}) => {
+    log.debug('files touched', files.map(({ name }) => name));
+    files.forEach(({ status, name }) => {
       switch (status) {
         case 'D':
           rm(name);
@@ -123,7 +124,7 @@ class Options {
 
   banner () {
     Object.keys(this)
-    .forEach(k => log(`${k}: ${inspect(this[k], {colors: true, depth: Infinity})}`));
+    .forEach(k => log(`${k}: ${inspect(this[k], { colors: true, depth: Infinity}) }`));
   }
 }
 
