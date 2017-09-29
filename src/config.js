@@ -41,6 +41,10 @@ export default {
     value: '/home/tmp/',
     text: 'remote folder to sync changes to.' + ' Default: /home/tmp'.yellow
   },
+  agent: {
+    value: '$SSH_AUTH_SOCK',
+    text: 'ssh-agent unix socket for authentication' + ' Default: $SSH_AUTH_SOCK'.yellow
+  },
   password: {
     value: 'passw0rd',
     text: 'user\'s password from sftp account. ' + 'Default: passw0rd'.yellow

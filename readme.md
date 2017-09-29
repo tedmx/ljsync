@@ -18,6 +18,7 @@ Options:
   --host=hostname - vm hostname
   --ftpHost=example.com - sFTP ssh full hostname
   --mode=ftp OR rsync (defaults to rsync) - ftp uses sftp fast mode
+  --agent=$SSH_AUTH_SOCK ssh-agent unix socket for authentication
 
   --chokidar.interval=300 - ms to recheck fs for new files
   --chokidar.ignoreInitial=true - dont sync on load
@@ -31,7 +32,7 @@ Commands:
 ````
 
 #config
-to create `.ljsyncrc` run `ljsync init` in project folder
+create `.ljsyncrc` in project folder
 
 ````
 {

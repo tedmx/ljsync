@@ -65,15 +65,23 @@ class Options {
   async initFtp () {
     log.debug('init ftp started');
     try {
-      let banner = await ftp.connect({
+      let ftpOptions = {
         host: this.ftpHost,
         port: this.port,
         user: this.user,
-        password: this.password,
         autoReconnect: true,
         keepalive: 1e4,
         preserveCwd: true
-      });
+      };
+      if (process.env['SSH_AUTH_SOCK']) {
+        ftpOptions.agent = process.env['SSH_AUTH_SOCK'];
+      } else if (this.agent) {
+        ftpOptions.agent = this.agent;
+      }
+      if (this.password && this.password.length) {
+        ftpOptions.password = this.password;
+      }
+      let banner = await ftp.connect(ftpOptions);
       log.info('FTP connected', banner);
     } catch (e) {
       log.error('Can\'t connect to FTP', e);
