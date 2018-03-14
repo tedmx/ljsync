@@ -1,8 +1,17 @@
-machine:
-  node:
-    version: 7.4
-deployment:
-  production:
-    branch: master
-    commands:
-      - ./deploy_to_npm.sh
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:7.4
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          - v1-dependencies-
+      - run: bash ./deploy_to_npm.sh
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
